@@ -7,16 +7,16 @@ import {
 } from 'ngx-sb4-client';
 import {HttpClient} from '@angular/common/http';
 import {lastValueFrom} from 'rxjs';
+import {NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [NgxSb4ClientComponent],
+  imports: [NgxSb4ClientComponent, NgIf],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 
 })
 export class AppComponent {
-  title = 'app-demo';
 
   clientProps: Sb4ClientProperties = {
     views: new Map([
@@ -29,4 +29,17 @@ export class AppComponent {
     await lastValueFrom(this.httpClient.get('/api/launch', {context}));
     return Promise.resolve();
   };
+
+  title = 'Sb4 Client Demo';
+
+
+  widget1Label = 'Custom Components';
+  widget2Label = 'Layout Definitions';
+
+  currentWidget = 1;
+
+  switchWidget(widgetNumber: number) {
+    this.currentWidget = widgetNumber;
+  }
+
 }

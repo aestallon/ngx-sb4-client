@@ -1,4 +1,51 @@
-<div>
-  <p>Hello, World!</p>
-  <sb4-client [props]="clientProps" [launchCall]="launchCall"></sb4-client>
-</div>
+<main class="widget-showcase">
+  <!-- Header Section -->
+  <header class="header">
+    <h1 class="title">{{ title }}</h1>
+    <div class="description-container">
+      <p class="description">See two powerful implementations of our drop-in Smartbit4All
+        client:</p>
+      <p class="description">✨ Custom Components - Handcrafted Angular views</p>
+      <p class="description">✨ Layout Definitions - Server-driven declarative displays</p>
+    </div>
+  </header>
+
+  <!-- Widget Switcher -->
+  <div class="widget-switcher">
+    <button
+      class="switch-button"
+      [class.active]="currentWidget === 1"
+      (click)="switchWidget(1)">
+      {{ widget1Label }}
+    </button>
+    <button
+      class="switch-button"
+      [class.active]="currentWidget === 2"
+      (click)="switchWidget(2)">
+      {{ widget2Label }}
+    </button>
+  </div>
+
+  <!-- Widget Display Area -->
+  <div class="widget-area">
+    <ng-container *ngIf="currentWidget === 1">
+      <sb4-client [props]="clientProps" [launchCall]="launchCall"></sb4-client>
+    </ng-container>
+    <ng-container *ngIf="currentWidget === 2">
+      <sb4-client [props]="clientProps" [launchCall]="launchCall"></sb4-client>
+    </ng-container>
+  </div>
+
+  <span style="flex:1;"></span>
+  <!-- Footer -->
+  <footer class="footer">
+    <a
+      href="https://github.com/aestallon/ngx-sb4-client"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="github-link">
+      <img src="/github-mark.svg" alt="GitHub" class="github-icon">
+      View on GitHub
+    </a>
+  </footer>
+</main>

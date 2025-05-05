@@ -1,0 +1,281 @@
+openapi: 3.0.1
+info:
+  title: Session api
+  description: Session api...
+  termsOfService: ''
+  contact:
+    email: info@it4all.hu
+  version: 1.0.0
+tags:
+  - name: Session
+paths:
+  /session:
+    put:
+      tags:
+        - Session
+      summary: Creates a new session
+      operationId: 'startSession'
+      responses:
+        '200':
+          description: 'The session has started'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionInfoData'
+        '500':
+          $ref: '#/components/responses/SessionError'
+    get:
+      tags:
+        - Session
+      summary: Returns the existing session info
+      operationId: 'getSession'
+      responses:
+        '200':
+          description: 'Returns the existing session info'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionInfoData'
+        '400':
+          $ref: '#/components/responses/JwtTokenError'
+        '404':
+          $ref: '#/components/responses/NotExistingSessionError'
+        '500':
+          $ref: '#/components/responses/SessionError'
+  /authenticationProviders:
+    get:
+      tags:
+        - Session
+      summary: Returns the available authentication providers
+      operationId: 'getAuthenticationProviders'
+      responses:
+        '200':
+          description: 'Returns the available authentication providers'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAuthenticationProvidersResponse'
+        '400':
+          $ref: '#/components/responses/JwtTokenError'
+        '404':
+          $ref: '#/components/responses/NotExistingSessionError'
+        '500':
+          $ref: '#/components/responses/SessionError'
+  /refresh:
+    post:
+      tags:
+        - Session
+      summary: Refreshes the session
+      operationId: 'refreshSession'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshSessionRequest'
+      responses:
+        '200':
+          description: 'Refreshes the expired session with the refresh token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionInfoData'
+        '400':
+          $ref: '#/components/responses/JwtTokenError'
+        '500':
+          $ref: '#/components/responses/SessionError'
+  /locale/{locale}:
+    post:
+      tags:
+        - Session
+      summary: Sets the locale of the session
+      operationId: setLocale
+      description: Sets the locale of the current session and returns the SessionInfoData
+      parameters:
+        - in: path
+          name: locale
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: 'Returns the existing session info'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionInfoData'
+        '400':
+          $ref: '#/components/responses/JwtTokenError'
+        '404':
+          $ref: '#/components/responses/NotExistingSessionError'
+        '500':
+          $ref: '#/components/responses/SessionError'
+
+components:
+  schemas:
+    Session:
+      type: object
+      required: [authentications, parameters, viewContexts]
+      properties:
+        uri:
+          type: string
+          format: uri
+        expiration:
+          type: string
+          format: date-time
+        refreshExpiration:
+          type: string
+          description: |
+            The expiration time of the current refresh token. If this time is over then the session is definetely invalid.
+          format: date-time
+        locale:
+          type: string
+        authentications:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountInfo'
+        user:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+        parameterClasses:
+          type: object
+          additionalProperties:
+            type: string
+        viewContexts:
+          description: ViewContexts in this session, URIs by UUID.
+          type: object
+          additionalProperties:
+            type: string
+            format: uri
+        createdAt:
+          type: string
+          format: date-time
+
+    SessionInfoData:
+      type: object
+      required: [sid]
+      properties:
+        sid:
+          type: string
+        refreshToken:
+          type: string
+          description: The current refresh token.
+        expiration:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          format: int64
+          description: |
+            The lifetime of the refresh token in seconds.
+        locale:
+          type: string
+        authentications:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountInfo'
+        createdAt:
+          type: string
+          format: date-time
+
+    AccountInfo:
+      type: object
+      required: [kind, userName, displayName]
+      properties:
+        kind:
+          type: string
+        userName:
+          type: string
+        displayName:
+          type: string
+        imageContent:
+          type: string
+          format: byte # or binary?
+        imageFormat:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+    GetAuthenticationProvidersResponse:
+      type: object
+      required: [authenticationProviders]
+      properties:
+        authenticationProviders:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthenticationProviderData'
+    AuthenticationProviderData:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+    RefreshSessionRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+    ApiError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    UserActivityLog:
+      type: object
+      description: |
+        When a user executes an activity this entry is created based on the current session. It contains the information we know about the
+        user and the time of the execution. The user is not necessarily user of the system so the user uri is optional and the user is a copied
+        value from the session.
+      properties:
+        userUri:
+          type: string
+          format: uri
+          description: The uri reference of the user.
+        userName:
+          type: string
+          description: The login name of the user.
+        role:
+          type: string
+          description: The role of the user.
+        name:
+          type: string
+          description: The natural name of the user.
+        timestamp:
+          type: string
+          format: date-time
+  responses:
+    JwtTokenError:
+      description: 'Missing or expired JWT token'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    NotExistingSessionError:
+      description: 'The session does not exists with the given token'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    SessionError:
+      description: 'Error occurred while fetching the session data'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'

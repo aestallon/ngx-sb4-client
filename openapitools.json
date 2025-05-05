@@ -1,0 +1,72 @@
+{
+  "$schema": "./node_modules/@openapitools/openapi-generator-cli/config.schema.json",
+  "spaces": 2,
+  "generator-cli": {
+    "version": "7.13.0",
+    "generators": {
+      "session": {
+        "generatorName": "typescript-angular",
+        "inputSpec": "spec/session-api.yaml",
+        "output": "projects/api/src/lib/session",
+        "importMappings": {}
+      },
+      "view": {
+        "generatorName": "typescript-angular",
+        "inputSpec": "spec/view-api.yaml",
+        "output": "projects/api/src/lib/view",
+        "importMappings": {
+          "SmartComponentLayoutDefinition": "../../scld/model/smartComponentLayoutDefinition",
+          "ValueSetData": "../../value/model/valueSetData",
+          "SmartLayoutDefinition": "../../form/model/smartLayoutDefinition",
+          "BinaryData": "../../default",
+          "InvocationRequest": "../../default"
+        }
+      },
+      "scld": {
+        "generatorName": "typescript-angular",
+        "inputSpec": "spec/smartcomponentlayoutdefinition-api.yaml",
+        "output": "projects/api/src/lib/scld",
+        "importMappings": {
+          "ViewConstraint": "../../view/model/viewConstraint",
+          "Style": "../../view/model/style",
+          "SmartWidgetDefinition": "../../form/model/smartWidgetDefinition",
+          "FilterExpressionFieldList:": "../../filter/model/filterExpressionFieldList",
+          "SmartFilterType": "../../filter/model/smartFilterType"
+        }
+      },
+      "value": {
+        "generatorName": "typescript-angular",
+        "inputSpec": "spec/value-api.yaml",
+        "output": "projects/api/src/lib/value",
+        "importMappings": {
+          "FilterExpressionBuilderModel": "../../filter/model/filterExpressionBuilderModel",
+          "PropertyDefinitionData": "../../default",
+          "InvocationRequest": "../../default"
+        }
+      },
+      "form": {
+        "generatorName": "typescript-angular",
+        "inputSpec": "spec/formdefinition-api.yaml",
+        "output": "projects/api/src/lib/form",
+        "importMappings": {
+          "Value": "../../value/model/value",
+          "IconPosition": "../../view/model/iconPosition",
+          "Style": "../../view/model/style"
+        }
+      },
+      "filter": {
+        "generatorName": "typescript-angular",
+        "inputSpec": "spec/filterexpression-api.yaml",
+        "output": "projects/api/src/lib/filter",
+        "importMappings": {
+          "UiAction": "../../view/model/uiAction",
+          "Value": "../../value/model/value",
+          "SmartLayoutDefinition": "../../form/model/smartLayoutDefinition",
+          "UiActionDescriptor": "../../view/model/uiActionDescriptor",
+          "StoredCollectionDescriptor": "../../default",
+          "GridView": "../../default"
+        }
+      }
+    }
+  }
+}

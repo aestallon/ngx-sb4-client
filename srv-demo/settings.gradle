@@ -1,0 +1,3 @@
+rootProject.name = 'srv-demo'
+
+includeBuild '../../platform-jdk21-silent-mode-20241222'

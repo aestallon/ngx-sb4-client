@@ -1,0 +1,1498 @@
+openapi: 3.0.1
+info:
+  title: View API
+  description: View API
+  termsOfService: ''
+  contact:
+    email: info@it4all.hu
+  version: 1.0.0
+tags:
+  - name: View
+paths:
+  /context:
+    post:
+      tags:
+        - View
+      summary: Creates a new ViewContext
+      operationId: 'createViewContext'
+      responses:
+        '200':
+          description: 'Context created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewContextData'
+    put:
+      tags:
+        - View
+      summary: Updates an existing ViewContext
+      operationId: 'updateViewContext'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewContextUpdate'
+      responses:
+        '200':
+          description: 'Context updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewContextData'
+        '404':
+          description: 'The context does not exists with the given uuid'
+        '500':
+          description: 'Error during context update'
+  /context/{uuid}:
+    get:
+      tags:
+        - View
+      summary: Returns the existing session info
+      operationId: 'getViewContext'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: ViewContext's unique identifier.
+      responses:
+        '200':
+          description: 'Returns ViewContext by unique identifier'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewContextData'
+        '404':
+          description: 'The context does not exists with the given uuid'
+        '500':
+          description: 'Error occured while fetching the session data'
+  /component/{uuid}:
+    get:
+      tags:
+        - View
+      summary: Returns component's model.
+      operationId: 'getComponentModel'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Component's unique identifier.
+      responses:
+        '200':
+          description: 'Returns ComponentModel by unique identifier'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentModel'
+        '404':
+          description: 'The component does not exists with the given uuid'
+        '500':
+          description: 'Error occured while fetching the component data'
+  /component/{uuid}/load:
+    get:
+      tags:
+        - View
+      summary: Returns component's model in a ViewContextChange.
+      operationId: 'getComponentModel2'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Component's unique identifier.
+      responses:
+        '200':
+          description: 'Returns ComponentModel by unique identifier'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewContextChange'
+        '404':
+          description: 'The component does not exists with the given uuid'
+        '500':
+          description: 'Error occured while fetching the component data'
+  /component/{uuid}/data:
+    post:
+      tags:
+        - View
+      description: |
+        Notification of a data change event..
+      operationId: 'dataChanged'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataChange'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewContextChange'
+  /component/{uuid}/action:
+    post:
+      tags:
+        - View
+      description: |
+        Performs a generic UI action.
+      operationId: 'performAction'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UiActionRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewContextChange'
+  /component/{uuid}/upload:
+    post:
+      tags:
+        - View
+      description: |
+        Performs an upload UI action.
+      operationId: 'uploadAction'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                uiActionRequest:
+                  description: Stringify-d UiActionRequest.
+                  type: string
+                param:
+                  description: Parameter name to use when converting uploaded file to BinaryData.
+                  type: string
+                content:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewContextChange'
+  /component/{uuid}/uploadMultiple:
+    post:
+      tags:
+        - View
+      description: |
+        Performs a generic UI action.
+      operationId: 'uploadMultipleAction'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                uiActionRequest:
+                  description: Stringify-d UiActionRequest.
+                  type: string
+                param:
+                  description: Parameter name to use when converting uploaded file to BinaryData.
+                  type: string
+                contents:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewContextChange'
+  /component/{uuid}/{widgetId}/action:
+    post:
+      tags:
+        - View
+      description: |
+        Performs a widget UI action.
+      operationId: 'performWidgetMainAction'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: widgetId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UiActionRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewContextChange'
+  /component/{uuid}/{widgetId}/{nodeId}/action:
+    post:
+      tags:
+        - View
+      description: |
+        Performs a widget UI action.
+      operationId: 'performWidgetAction'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: widgetId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: nodeId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UiActionRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewContextChange'
+  /component/{uuid}/download/{item}:
+    get:
+      tags:
+        - View
+      operationId: 'downloadItem'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: item
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: 'The component does not exists with the given uuid'
+        '500':
+          description: 'Error occured while fetching the downloadable item'
+  /message/{viewUuid}/{messageUuid}:
+    post:
+      tags:
+        - View
+      summary: ''
+      operationId: 'message'
+      parameters:
+        - in: path
+          name: viewUuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: 'View UUID.'
+        - in: path
+          name: messageUuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: 'Message UUID.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageResult'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewContextChange'
+  /view/{uuid}/constraint:
+    get:
+      tags:
+        - View
+      summary: Returns the view constraint object belongs to the given view
+      operationId: 'getViewConstraint'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: View's unique identifier.
+      responses:
+        '200':
+          description: 'Returns ViewConstraint object for the view identified by unique identifier'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewConstraint'
+        '404':
+          description: 'The context does not exists with the given uuid'
+        '500':
+          description: 'Error occured while fetching the constraints data'
+  /view/{uuid}/download/{item}:
+    get:
+      tags:
+        - View
+      operationId: 'downloadItemDeprecated'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: item
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: 'The context does not exists with the given uuid'
+        '500':
+          description: 'Error occured while fetching the downloadable item'
+  /smartlink/{channel}/{uuid}:
+    put:
+      tags:
+        - View
+      summary: Show Published View
+      operationId: 'showPublishedView'
+      parameters:
+        - in: path
+          name: channel
+          schema:
+            type: string
+          required: true
+          description: Smartlink's channel.
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Smartlink's unique identifier
+      responses:
+        '200':
+          description: ''
+components:
+  schemas:
+    ViewContext:
+      type: object
+      description: The same session can be valid / used in multiple UIs, this object represents a UI.
+      required: [uri, views, links, downloads]
+      properties:
+        uri:
+          type: string
+          format: uri
+        uuid:
+          type: string
+          format: uuid
+        views:
+          type: array
+          items:
+            $ref: '#/components/schemas/View'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        downloads:
+          type: array
+          items:
+            $ref: '#/components/schemas/DownloadedFile'
+        clipboardData:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClipboardData'
+        openPendingData:
+          $ref: '#/components/schemas/OpenPendingData'
+        currentRequest:
+          $ref: '#/components/schemas/ServerRequestTrack'
+        deviceInfo:
+          $ref: '#/components/schemas/DeviceInfo'
+    ViewContextData:
+      type: object
+      description: The same session can be valid / used in multiple UIs, this object represents a UI.
+      required: [uri, views, links, downloads, clipboardData]
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        views:
+          type: array
+          items:
+            $ref: '#/components/schemas/ViewData'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        downloads:
+          type: array
+          items:
+            $ref: '#/components/schemas/DownloadedFile'
+        clipboardData:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClipboardData'
+    ViewContextChange:
+      type: object
+      description: The same session can be valid / used in multiple UIs, this object represents a UI.
+      required: [viewContext, changes]
+      properties:
+        viewContext:
+          $ref: '#/components/schemas/ViewContextData'
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentModelChange'
+        result:
+          description: |
+            If the server call is wrapped inside this ViewContextChange, then this field will
+            contain the result of the original call.
+          type: object
+    DeviceInfo:
+      type: object
+      description: Information of the device running the current view context.
+      required: [deviceId, parameters]
+      properties:
+        deviceId:
+          description: |
+            Unique identifier of the client's device. E.g.: android_id.
+          type: string
+        deviceType:
+          description: |
+            The type of the device. E.g.: browser, android, iOS or else. 
+            This information is not required and should be used with caution since the clients may 
+            define their own type differently.
+          type: string
+        userAgent:
+          description: The user-agent information from the client.
+          type: string
+        ipAddress:
+          description: IP address of the client.
+          type: string
+        parameters:
+          type: object
+          description: Any additional parameters that the client may share with the server.
+          additionalProperties: true
+    View:
+      type: object
+      required:
+        [
+          uuid,
+          viewName,
+          state,
+          type,
+          parameters,
+          variables,
+          closedChildrenViews,
+          downloadableItems,
+          actions,
+          widgetModels,
+          widgetServerModels,
+          valueSets,
+          callbacks,
+          eventHandlers,
+          layouts,
+          componentLayouts,
+        ]
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unique identifier of the View.
+        viewName:
+          type: string
+        objectUri:
+          type: string
+          format: uri
+        branchUri:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          description: The incoming parameters of the view. If we restart the given view with the same model then this parameters remain.
+          additionalProperties: true
+        variables:
+          type: object
+          description: The variable to store while the page is opened. It will be cleared if we open it again.
+          additionalProperties: true
+        state:
+          $ref: '#/components/schemas/ViewState'
+        type:
+          $ref: '#/components/schemas/ViewType'
+        containerUuid:
+          type: string
+          format: uuid
+        model:
+          type: object
+        constraint:
+          $ref: '#/components/schemas/ViewConstraint'
+        closedChildrenViews:
+          type: array
+          items:
+            $ref: '#/components/schemas/ViewPlaceholder'
+        downloadableItems:
+          type: object
+          additionalProperties:
+            type: string
+            format: uri
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiAction'
+        eventHandlers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ViewEventHandler'
+        widgetModels:
+          type: string
+          additionalProperties:
+            type: object
+        widgetServerModels:
+          type: string
+          additionalProperties:
+            type: object
+        valueSets:
+          type: string
+          additionalProperties:
+            type: ValueSet
+        keepModelOnImplicitClose:
+          type: boolean
+        callbacks:
+          type: string
+          additionalProperties:
+            type: object
+        layouts:
+          description: The layouts defined in the view. This named layouts can be used by the UI to render
+          additionalProperties:
+            type: SmartLayoutDefinition
+        componentLayouts:
+          description: The components layouts defined in the view. This named layouts can be used by the UI to render
+          additionalProperties:
+            type: SmartComponentLayoutDefinition
+        style:
+          $ref: '#/components/schemas/Style'
+        parentStyle:
+          $ref: '#/components/schemas/Style'
+    ViewEventHandler:
+      type: object
+      description: |
+        An event handler is a special callback function to call when the given event is occurred. So the event handler
+        can be an action as is or can be fired on a before or after event
+      properties:
+        path:
+          type: array
+          description: |
+            The event handler path defines the location of the event. We can use regular expressions to fine tune the
+            event definition. In this way we can add before event handler for all the actions we have. The actions will have
+            a predefined path. The path of the normal actions is the action code itself.
+          items:
+            type: string
+        viewEventType:
+          enum: [before, instead, after]
+        invocationRequest:
+          description: |
+            This is the method to call when the event occurs. It's signature is the same as the event which
+            it specifies, like ActionHandler or WidgetActionHandler.
+          type: InvocationRequest
+    ViewData:
+      type: object
+      required: [uuid, viewName, state, type]
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unique identifier of the View.
+        viewName:
+          type: string
+        message:
+          $ref: '#/components/schemas/MessageData'
+        state:
+          $ref: '#/components/schemas/ViewState'
+        type:
+          $ref: '#/components/schemas/ViewType'
+        containerUuid:
+          type: string
+          format: uuid
+    ViewConstraint:
+      type: object
+      description: |
+        The view constraint object encapsulate the constraints can be applied to any view genericly. It consists of
+        compenet constraints and many more.
+      required: [componentConstraints]
+      properties:
+        componentConstraints:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentConstraint'
+    ViewPlaceholder:
+      type: object
+      description: |
+        This object is a placeholder for the view, typically for closed children views 
+        so these are not saved in ViewContext object, keeping it's size reasonable.
+      required: [closedChildrenViews]
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unique identifier of the View.
+        closedChildrenViews:
+          type: array
+          items:
+            $ref: '#/components/schemas/ViewPlaceholder'
+    ComponentModel:
+      type: object
+      description: |
+        Model of a UI component. Contains all information in one object, which are needed 
+        to render a fully functionin component.
+      required: [uuid, name, constraints, layouts, actions]
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        data:
+          type: object
+        constraints:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentConstraint'
+        layouts:
+          additionalProperties:
+            type: SmartLayoutDefinition
+        componentLayouts:
+          additionalProperties:
+            type: SmartComponentLayoutDefinition
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiAction'
+        valueSets:
+          type: string
+          additionalProperties:
+            type: ValueSet
+        widgets:
+          description: List of widgets (widgetIds).
+          type: array
+          items:
+            type: string
+        style:
+          $ref: '#/components/schemas/Style'
+        parentStyle:
+          $ref: '#/components/schemas/Style'
+    ComponentModelChange:
+      type: object
+      description: |
+        Change of a ComponentModel.
+      required: [uuid, path, changes]
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        path:
+          type: string
+        value:
+          type: object
+        changes:
+          description: |
+            Changed values, in a key-value map. Refers to different parts of ComponentModel, for example 
+            data changes are prefixed with 'data.', layout changes with 'layouts.', etc.
+          type: object
+          additionalProperties: true
+        changedWidgets:
+          description: List of changed widgets (widgetIds).
+          type: array
+          items:
+            type: string
+    ComponentConstraint:
+      type: object
+      description: |
+        The component constraint is responsible for the constraints belong to a given component (textfield, combobox etc.) on the view. The UI
+        must identify the component by the dataName that is a path of the data name separated by dot like dataSheet.field.
+      properties:
+        dataName:
+          type: string
+          description: The data name to identify the related component or componenets. If it is a path the format is the following - dataSheet.field.
+        visible:
+          type: boolean
+          default: true
+        mandatory:
+          type: boolean
+          default: false
+        enabled:
+          type: boolean
+          default: true
+        valueSet:
+          type: ValueSetData
+        min:
+          type: integer
+          format: int32
+        max:
+          type: integer
+          format: int32
+        minLength:
+          type: integer
+          format: int32
+        maxLength:
+          type: integer
+          format: int32
+        namedValidators:
+          type: array
+          items:
+            $ref: '#/components/schemas/NamedValidator'
+      required: [namedValidators]
+    NamedValidator:
+      type: object
+      properties:
+        name:
+          type: string
+        params:
+          type: object
+          additionalProperties:
+            type: object
+        operation:
+          type: string
+          enum: [ADD, REMOVE, ALTER]
+          default: ADD
+          description: |
+            ADD:    
+            REMOVE: 
+            ALTER:  Do not explicitly add, but alter preexisting matching validator's parameters
+      required: [name, params, operation]
+
+    UiActionConstraint:
+      type: object
+      description: |
+        The UiAction constraint is responsible for the constraints belong to a given action (button, menu option etc.) on the view. The UI
+        must identify the action by the dataName that is a path of the data name separated by dot like dataSheet.field.
+      properties:
+        path:
+          type: string
+          description: The path format is the following - dataSheet.actionCode.
+        visible:
+          type: boolean
+          default: true
+        enabled:
+          type: boolean
+          default: true
+    ViewState:
+      type: string
+      enum:
+        - open_pending
+        - to_open
+        - opened
+        - close_pending
+        - close_approved
+        - to_close
+        - closed
+      default: to_open
+    ViewType:
+      type: string
+      enum:
+        - normal
+        - dialog
+        - embedded
+      default: normal
+    MessageData:
+      type: object
+      required: [uuid, type, possibleResults]
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unique identifier of the Message.
+        viewUuid:
+          type: string
+          format: uuid
+          description: UUID of the View, showing this message. May be null.
+        type:
+          $ref: '#/components/schemas/MessageType'
+        header:
+          type: string
+        text:
+          type: string
+        textType:
+          $ref: '#/components/schemas/MessageTextType'
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageOption'
+    MessageType:
+      type: string
+      enum:
+        - info
+        - question
+        - warning
+        - error
+    MessageTextType:
+      type: string
+      enum:
+        - plain
+        - html
+    MessageOption:
+      type: object
+      required: [code, label]
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+        icon:
+          type: string
+        type:
+          $ref: '#/components/schemas/MessageOptionType'
+    MessageOptionType:
+      type: string
+      enum:
+        - confirm
+        - reject
+        - cancel
+    MessageResult:
+      type: object
+      required: [selectedOption]
+      properties:
+        selectedOption:
+          $ref: '#/components/schemas/MessageOption'
+        additionalData:
+          type: object
+    ViewStateUpdate:
+      description: State update of a view.
+      type: object
+      properties:
+        uuid:
+          description: ViewContext's unique identifier.
+          type: string
+          format: uuid
+        state:
+          $ref: '#/components/schemas/ViewState'
+    ViewContextUpdate:
+      description: State update of a ViewContext.
+      type: object
+      properties:
+        uuid:
+          description: ViewContext's unique identifier.
+          type: string
+          format: uuid
+        updates:
+          type: array
+          items:
+            $ref: '#/components/schemas/ViewStateUpdate'
+        deviceInfo:
+          $ref: '#/components/schemas/DeviceInfo'
+    ViewApiError:
+      type: object
+      description: Generic API error object.
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    OpenPendingData:
+      type: object
+      description: All information regarding opening a view (and possible it's parents).
+      required: [viewsToOpen, viewsToClose, results, closedChildren]
+      properties:
+        viewsToOpen:
+          type: array
+          items:
+            type: string
+            format: uuid
+        viewsToClose:
+          type: array
+          items:
+            type: string
+            format: uuid
+        results:
+          additionalProperties:
+            $ref: '#/components/schemas/CloseResult'
+        closedChildren:
+          description: This map holds the 'used' closed children which should be restored on reject.
+          type: string
+          additionalProperties:
+            $ref: '#/components/schemas/View'
+    CloseResult:
+      type: string
+      default: pending
+      enum:
+        - approved
+        - pending
+        - rejected
+    UiAction:
+      type: object
+      properties:
+        code:
+          type: string
+        path:
+          type: string
+        identifier:
+          type: string
+        inputType:
+          $ref: '#/components/schemas/UiActionInputType'
+        input2Type:
+          $ref: '#/components/schemas/UiActionInputType'
+        submit:
+          description: If true, UiAction will submit the form (causing validation) and sends model in UiActionRequest.
+          type: boolean
+        model:
+          description: If true, UiAction will NOT submit the form and sends model WITHOUT VALIDATION in UiActionRequest.
+          type: boolean
+        confirm:
+          type: boolean
+          default: false
+        params:
+          description: |
+            Additional parameters for executing the UI action.
+          type: object
+          additionalProperties: true
+        descriptor:
+          $ref: '#/components/schemas/UiActionDescriptor'
+        subActions:
+          description: The sub action are set if and only if this action is a sub menu. The sub actions can be null.
+          type: array
+          items:
+            $ref: '#/components/schemas/UiAction'
+        toolbar:
+          description: The id of toolbar which this UiAction should be placed on.
+          type: string
+        disabled:
+          description: Whether this action should appear disabled or not.
+          type: boolean
+    UiActionInputType:
+      type: string
+      default: none
+      enum:
+        - none
+        - textfield
+        - textarea
+        - user_select
+        - file
+        - multiple_files
+    UiActionRequest:
+      type: object
+      description: A request to perform user action initiated on the client interface
+      required: [code, params]
+      properties:
+        code:
+          description: Code of the executed UI action.
+          type: string
+        path:
+          type: string
+        identifier:
+          description: |
+            Identifier of UI element, or UI action, where action is performed (for example treeNode's / 
+            listItem's identifier, etc.). Optional.
+          type: string
+        params:
+          description: |
+            Additional parameters for executing the UI action.
+          type: object
+          additionalProperties: true
+    ServerRequestTrack:
+      type: object
+      description: |
+        The server request track is an object encapsulates the UiRequest and other parameters of the perform actions.
+        It stands for normal and widget actions also.
+      required: [viewName, viewUuid, startTime, request, type]
+      properties:
+        viewName:
+          description: The name of the view the request is performed on.
+          type: string
+        viewUuid:
+          description: The UUID of the view the request is performed on.
+          type: string
+          format: uuid
+        widgetId:
+          description: The identifier of the widget if it is a widget action perform.
+          type: string
+        nodeId:
+          description: The identifier of the widget node if it is a widget action perform.
+          type: string
+        startTime:
+          description: The start of the service.
+          type: string
+          format: date-time
+        endTime:
+          description: The end of the service.
+          type: string
+          format: date-time
+        readCount:
+          description: The number of executed reads.
+          type: integer
+          format: int64
+          default: 0
+        readTime:
+          description: The summarized execution time of the reads.
+          type: integer
+          format: int64
+          default: 0
+        writeCount:
+          description: The number of executed writes.
+          type: integer
+          format: int64
+          default: 0
+        writeTime:
+          description: The summarized execution time of the writes.
+          type: integer
+          format: int64
+          default: 0
+        request:
+          $ref: '#/components/schemas/UiActionRequest'
+        type:
+          $ref: '#/components/schemas/ServerRequestType'
+    ServerRequestType:
+      enum:
+        [
+          ACTION,
+          WIDGET_ACTION,
+          CREATE_VIEW_CONTEXT,
+          UPDATE_VIEW_CONTEXT,
+          GET_VIEW_CONTEXT,
+          HANDLE_MESSAGE_RESULT,
+          SHOW_SMARTLINK,
+          DOWNLOAD,
+          GET_COMPONENT_MODEL,
+        ]
+    StatisticRecord:
+      type: object
+      description: |
+        The generic execution statistic is an object for the actuator infrastructure. It could be initiated for many purposes and
+        contains the count, the minimum, average and maximum execution times.
+      required: [code, params]
+      properties:
+        min:
+          description: The minimum execution time of the given action in millisec.
+          type: integer
+          format: int64
+        avg:
+          description: The average execution time of the given action in millisec.
+          type: integer
+          format: int64
+          default: 0
+        max:
+          description: The average execution time of the given action in millisec.
+          type: integer
+          format: int64
+          default: 0
+        counter:
+          description: The number of executed requests.
+          type: integer
+          format: int64
+          default: 0
+        sum:
+          description: The summarized execution time of the request.
+          type: integer
+          format: int64
+          default: 0
+    ServerRequestExecutionStat:
+      type: object
+      description: |
+        The server request execution statistic is an object for the actuator infrastructure. It is initiated for every view-widget-action and
+        contains the minimum, average and maximum execution times. It collects from the server start.
+      required: [code, params]
+      properties:
+        id:
+          description: The identifier of the statistical entry. The view - widget - action format.
+          type: string
+        viewName:
+          description: The name of the view the request is performed on.
+          type: string
+        widgetId:
+          description: The identifier of the widget if it is a widget action perform.
+          type: string
+        actionCode:
+          description: The identifier of the action performed.
+          type: string
+        fullStat:
+          $ref: '#/components/schemas/StatisticRecord'
+        writeCount:
+          $ref: '#/components/schemas/StatisticRecord'
+        writeStat:
+          $ref: '#/components/schemas/StatisticRecord'
+        readCount:
+          $ref: '#/components/schemas/StatisticRecord'
+        readStat:
+          $ref: '#/components/schemas/StatisticRecord'
+        type:
+          $ref: '#/components/schemas/ServerRequestType'
+    SmartLinkData:
+      description: |
+        Represents a stored smartlink. Contains identifiers and a View, which will be opened, 
+        when this smartlink is clicked.
+      type: object
+      properties:
+        uri:
+          type: string
+          format: uri
+        uuid:
+          type: string
+          format: uuid
+        view:
+          $ref: '#/components/schemas/View'
+        url:
+          type: string
+        acl:
+          description: If the user who clicked the link, is not part of the acl, an error page will open.
+          type: string
+          format: uri
+    # UiAction descriptors
+    UiActionDescriptor:
+      type: object
+      description: |
+        Describes the appearance (as a button) and the properties of the related dialogs of a UiAction.
+      required: [title, type, color]
+      properties:
+        title:
+          type: string
+        type:
+          $ref: '#/components/schemas/UiActionButtonType'
+        color:
+          type: string
+        icon:
+          type: string
+        iconColor:
+          type: string
+        iconPosition:
+          $ref: '#/components/schemas/IconPosition'
+        dialog:
+          $ref: '#/components/schemas/UiActionDialogDescriptor'
+        confirmDialog:
+          $ref: '#/components/schemas/UiActionDialogDescriptor'
+        inputDialog:
+          $ref: '#/components/schemas/UiActionDialogDescriptor'
+        input2Dialog:
+          $ref: '#/components/schemas/UiActionDialogDescriptor'
+        feedbackType:
+          $ref: '#/components/schemas/UiActionFeedbackType'
+        feedbackText:
+          type: string
+        upload:
+          $ref: '#/components/schemas/UiActionUploadDescriptor'
+        tooltip:
+          $ref: '#/components/schemas/UiActionTooltip'
+    UiActionTooltip:
+      type: object
+      properties:
+        tooltip:
+          type: string
+        tooltipPosition:
+          type: string
+          enum:
+            - AFTER
+            - BEFORE
+            - ABOVE
+            - BELOW
+            - LEFT
+            - RIGHT
+        tooltipDelay:
+          type: integer
+          format: int64
+        tooltipHideDelay:
+          type: integer
+          format: int64
+    UiActionUploadDescriptor:
+      type: object
+      description: |
+        Describes the look of an upload component that is related to a specific UiAction.
+      required: [title, actionButton, cancelButton]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        maxSize:
+          type: string
+        formats:
+          type: string
+        uploadButtonTitle:
+          type: string
+        backgroundColour:
+          type: string
+        textColour:
+          type: string
+    UiActionDialogDescriptor:
+      type: object
+      description: |
+        Describes the look of a dialog that is related to a specific UiAction.
+      required: [title, actionButton, cancelButton]
+      properties:
+        title:
+          type: string
+        placeholder:
+          type: string
+        text:
+          type: string
+        mask:
+          type: string
+        actionButton:
+          $ref: '#/components/schemas/UiActionButtonDescriptor'
+        cancelButton:
+          $ref: '#/components/schemas/UiActionButtonDescriptor'
+    UiActionButtonDescriptor:
+      type: object
+      description: |
+        Describes a button which is presented on the UiAction dialog.
+      required: [caption, color]
+      properties:
+        caption:
+          type: string
+        color:
+          type: string
+        icon:
+          type: string
+        iconColor:
+          type: string
+        iconPosition:
+          $ref: '#/components/schemas/IconPosition'
+        tooltip:
+          $ref: '#/components/schemas/UiActionTooltip'
+        cssClass:
+          type: string
+    UiActionButtonType:
+      type: string
+      description: |
+        Defines the type of the button.
+      enum:
+        - NORMAL
+        - FLAT
+        - STROKED
+        - RAISED
+        - ICON
+        - MINI_FAB
+        - FAB
+        - SEPARATOR
+        - SUBMENU
+    IconPosition:
+      type: string
+      description: |
+        Defines the position of an icon related to the button's label.
+      enum:
+        - PRE
+        - POST
+    UiActionFeedbackType:
+      type: string
+      description: |
+        Defines the possible feedback types which are shown if a UiAction was completed.
+      enum:
+        - NONE
+        - SNACKBAR
+    ValueSet:
+      type: object
+      description: |
+        An instance of a ValueSetData tied together with a logical timestamp (counter). It can be used 
+        as a request item, without specifying valueSetData,
+      properties:
+        valueSetName:
+          type: string
+        valueSetData:
+          type: ValueSetData
+        timestamp:
+          type: integer
+          format: int64
+    DataChange:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/DataChangeKind'
+        source:
+          description: Source of the event, typically the key of the widget.
+          type: string
+        values:
+          description: Changed values, in a key-value map.
+          type: object
+          additionalProperties: true
+    DataChangeEvent:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/DataChangeKind'
+        source:
+          description: Source of the event, typically the key of the widget.
+          type: string
+        oldValues:
+          description: Values before changed, in a key-value map.
+          type: object
+          additionalProperties: true
+        newValues:
+          description: Values before changed, in a key-value map.
+          type: object
+          additionalProperties: true
+    DataChangeKind:
+      type: string
+      description: |
+        Defines the kind of the source of this event..
+      enum:
+        - WIDGET
+        - SELECTION
+        - LOOKUP
+    UploadedFile:
+      type: object
+      description: |
+        Information about uploaded file.
+      properties:
+        filename:
+          type: string
+        size:
+          type: integer
+          format: int64
+        data:
+          type: BinaryData
+    DownloadedFile:
+      type: object
+      description: |
+        Information about uploaded file.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        identifier:
+          type: string
+        filename:
+          type: string
+    Link:
+      type: object
+      description: |
+        An anchor with a href representing a hyperlink object, which the client will open. 
+        For possible attributes see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a
+      required: [url]
+      properties:
+        url:
+          description: The URL that this link points to. It will be anchor's href attribute's value.
+          type: string
+        download:
+          description: Specifies if created anchor should contain download attribute.
+          type: boolean
+        filename:
+          description: Used only when download is true, it will download attribute's value
+          type: string
+        target:
+          enum:
+            - SELF
+            - BLANK
+            - PARENT
+            - TOP
+    ClipboardData:
+      type: object
+      description: |
+        Text or media content the client should copy to its system's clipboard.
+      properties:
+        text:
+          description: |
+            The raw text to copy to clipboard.
+          type: string
+    ImageResource:
+      type: object
+      properties:
+        kind:
+          enum: [FE, BE, URL]
+        source:
+          type: string
+        identifier:
+          type: string
+        color:
+          type: string
+        style:
+          $ref: '#/components/schemas/Style'
+        tooltip:
+          $ref: '#/components/schemas/UiActionTooltip'
+    Style:
+      type: object
+      description: Style data holder for client
+      required: [style, classesToAdd, classesToRemove]
+      properties:
+        style:
+          type: object
+          additionalProperties:
+            type: string
+        classesToAdd:
+          type: array
+          items:
+            type: string
+        classesToRemove:
+          type: array
+          items:
+            type: string

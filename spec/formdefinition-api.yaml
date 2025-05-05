@@ -1,0 +1,262 @@
+openapi: 3.0.1
+info:
+  title: Form layout definition
+  description: Contains form layout definition objects.
+  termsOfService: ''
+  contact:
+    email: info@it4all.hu
+  version: 1.0.0
+tags:
+  - name: FormLayoutDefinition
+paths:
+  /nope:
+    post:
+      summary: Placeholder for generation
+      responses:
+        '200':
+          description: nope
+components:
+  schemas:
+    SmartFormWidgetType:
+      type: string
+      enum:
+        - CHECK_BOX
+        - CHECK_BOX_2
+        - CONTAINER
+        - DATE_PICKER
+        - DATE_TIME_PICKER
+        - INDICATOR
+        - ITEM
+        - ITEM_GROUP
+        - LABEL
+        - RADIO_BUTTON
+        - SELECT
+        - SELECT_MULTIPLE
+        - TEXT_BOX
+        - TEXT_FIELD
+        - TEXT_FIELD_CHIPS
+        - TEXT_FIELD_NUMBER
+        - TEXT_FIELD_LOOKUP
+        - TIME
+        - TOGGLE
+        - IMAGE
+        - FILE_UPLOADER
+        - MEDIA
+        - BUTTON
+        - DIVIDER
+        - COMPONENT
+        - RICH_TEXT
+        - SORTABLE
+        - MATRIX
+        - MONTH_PICKER
+        - YOUTUBE_PLAYER
+        - SVG
+    SmartLayoutDefinition:
+      type: object
+      required: [widgets]
+      properties:
+        widgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/SmartWidgetDefinition'
+    SmartFormInputMode:
+      type: string
+      enum:
+        - NONE
+        - URL
+        - SEARCH
+        - NUMERIC
+        - TEL
+        - DECIMAL
+        - EMAIL
+    SmartWidgetDefinition:
+      type: object
+      description: The layout definition of the SmartTextField widget.
+      required: [type, key, label]
+      properties:
+        type:
+          $ref: '#/components/schemas/SmartFormWidgetType'
+        inputMode:
+          $ref: '#/components/schemas/SmartFormInputMode'
+        key:
+          type: string
+          description: The path of the desired parameter in the object.
+        label:
+          type: string
+          description: The label of the text field
+        placeholder:
+          type: string
+          description: The placeholder of the text field
+        prefix:
+          type: string
+          description: Text that appears as a prefix
+        suffix:
+          type: string
+          description: Text that appears as a suffix
+        mask:
+          type: string
+          description: A descriptor that masks the input
+        icon:
+          type: string
+          description: An icon which appears as a suffix
+        iconColor:
+          type: string
+          description: Material theme class of the icon
+        iconPosition:
+          type: IconPosition
+          description: Position of the icon (pre/post)
+        showLabel:
+          type: boolean
+          description: Defines if the label appears above the widget or not
+          default: true
+        cssClass:
+          type: string
+          description: Optional css class of the widget
+        cssLabelClass:
+          type: string
+          description: Optional css class of the label of the widget
+        style:
+          type: Style
+        labelStyle:
+          type: Style
+        isPassword:
+          type: boolean
+          description: Defines if the widget is a password input
+          default: false
+        values:
+          type: array
+          items:
+            type: Value
+        childrenComponents:
+          type: array
+          items:
+            $ref: '#/components/schemas/SmartWidgetDefinition'
+        selection:
+          description: Selection definition used for this widget.
+          $ref: '#/components/schemas/SelectionDefinition'
+        direction:
+          description: The direction inside a container.
+          $ref: '#/components/schemas/SmartFormWidgetDirection'
+        matrix:
+          description: Matrix model used for matrix widget
+          $ref: '#/components/schemas/SmartMatrixModel'
+        hint:
+          description: This object define hint text and its position for the widget
+          $ref: '#/components/schemas/SmartWidgetHint'
+        widgetDescription:
+          type: string
+        maxLength:
+          type: integer
+          format: int64
+        valueChangeMode:
+          $ref: '#/components/schemas/ValueChangeMode'
+        showCharacterLimitSuffix:
+          type: boolean
+          default: false
+        filterErrorMessage:
+          description: |
+            The default error message to show if the widget features an autocompletion filter
+            operation, which returns no elements.
+          type: string
+        toolbarId:
+          description: |
+            Identifier of the toolbar associated with this widget.
+          type: string
+        properties:
+          description: |
+            Additional properties the client may use to customise the appearance or behaviour of the
+            widget.
+          additionalProperties:
+            type: object
+        errorMessage:
+          description: |
+            The error message to show for the widget.
+          type: string
+        errorIcon:
+          description: |
+            The error message to show for the widget.
+          type: string
+        errorColor:
+          description: |
+            The error message to show for the widget.
+          type: string
+    ValueChangeMode:
+      description: |
+        This enum defines the value change handling strategy. Currently only one method is supported,
+        IMMEDIATE_ACTION, which will trigger an executeUiAction when the value is changed.
+      enum:
+        - NONE
+        - IMMEDIATE_ACTION
+    SmartWidgetHint:
+      type: object
+      properties:
+        text:
+          type: string
+        position:
+          type: string
+          enum:
+            - UNDER_LABEL
+            - UNDER_INPUT
+    SmartFormWidgetDirection:
+      type: string
+      enum:
+        - COL
+        - ROW
+    SelectionDefinition:
+      type: object
+      required: [valueSetName, type, mapping]
+      description: The definition of an arbitrary selection.
+      properties:
+        valueSetName:
+          type: string
+          description: Name of the ValueSet used for this selection.
+        type:
+          enum: [PROPERTY, OBJECT]
+          default: PROPERTY
+          description: |
+            Defines how the selection should work: for properties or the whole selected Object.
+        displayProperty:
+          type: string
+          description: |
+            Specifies which property from ValueSetData.values as Object should be used in 
+            selection widget.
+        mapping:
+          description: |
+            Mapping between data and selection model. It may be possible to omit mapping, in this case
+            the default mapping is: data = widget.key, selection = valueSetData.keyProperty
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyMapping'
+        emptyLabel:
+          description: Optional value, used for empty valueList entry, this will be the label.
+          type: string
+    PropertyMapping:
+      type: object
+      description: Mapping of two properties.
+      properties:
+        data:
+          type: string
+          description: Property name in the data model. This will be saved.
+        selection:
+          type: string
+          description: Property name in the selection model. This will won't be saved here, we use it for selection.
+    SmartMatrixModel:
+      type: object
+      properties:
+        rows:
+          type: array
+          items:
+            type: Value
+          description: The keys
+        columns:
+          type: array
+          items:
+            type: Value
+          description: The possible values
+        data:
+          type: object
+          description: A map for key - values
+          additionalProperties: true # To indicate it can have any key-value pairs.
+        multiSelect:
+          type: boolean
+          default: false

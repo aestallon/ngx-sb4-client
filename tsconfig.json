@@ -9,6 +9,14 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "api": [
+        "./dist/api"
+      ],
+      "ngx-sb4-client": [
+        "./dist/ngx-sb4-client"
+      ]
+    },
     "skipLibCheck": true,
     "isolatedModules": true,
     "esModuleInterop": true,

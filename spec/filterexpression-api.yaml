@@ -1,0 +1,534 @@
+openapi: 3.0.1
+info:
+  title: Filter API 2
+  description: Filter API 2
+  termsOfService: 'Filter API 2'
+  contact:
+    email: info@it4all.hu
+  version: 1.0.0
+tags:
+  - name: filterexpression
+    description: filterexpression
+paths:
+  /filter/{uuid}/{filterIdentifier}/load:
+    get:
+      tags:
+        - filter
+      summary: ''
+      operationId: 'load'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: filterIdentifier
+          schema:
+            type: string
+          required: true
+          description: ''
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterExpressionBuilderUiModel'
+  /filter/{uuid}/{filterIdentifier}/performWidgetAction:
+    post:
+      tags:
+        - filter
+      summary: ''
+      operationId: 'performWidgetAction'
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: filterIdentifier
+          schema:
+            type: string
+          required: true
+          description: ''
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: UiActionRequest
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterExpressionBuilderUiModel'
+components:
+  schemas:
+    FilterExpressionList:
+      type: object
+      description: |
+        The filter expressions can be gathered into a list. In case of a plain filter expression this is the root object of the expression list.
+      required: [expressions]
+      properties:
+        expressions:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilterExpressionData'
+
+    FilterExpressionOperandData:
+      type: object
+      description: |
+        The value of an expression operand. The type is named and the value itself is string formatted by the definition of the type.
+      required: [selectedValues]
+      properties:
+        isDataName:
+          type: boolean
+          default: true
+          description: True if the given operand refers to property at the moment. The value as string is a property name.
+        valueAsString:
+          type: string
+        selectedValues:
+          type: array
+          items:
+            type: string
+        selectedObjects:
+          type: array
+          items:
+            type: object
+        type:
+          $ref: '#/components/schemas/FilterExpressionDataType'
+
+    FilterExpressionData:
+      type: object
+      description: |
+        The expression data is the decriptor of an expression stands for an equal, like etc. and also can be a bracket where 
+        we have embedded expressions.
+      properties:
+        operand1:
+          $ref: '#/components/schemas/FilterExpressionOperandData'
+        operand2:
+          $ref: '#/components/schemas/FilterExpressionOperandData'
+        operand3:
+          $ref: '#/components/schemas/FilterExpressionOperandData'
+        currentOperation:
+          $ref: '#/components/schemas/FilterExpressionOperation'
+          default: 'EQUAL'
+        modifier:
+          type: string
+        boolOperator:
+          $ref: '#/components/schemas/FilterExpressionBoolOperator'
+          default: 'AND'
+        subExpression:
+          $ref: '#/components/schemas/FilterExpressionList'
+
+    FilterExpressionFieldList:
+      type: object
+      required: [filters]
+      properties:
+        id:
+          type: string
+          description: |
+            If the field list is included into builder model then this identifier is unique inside the model.
+        label:
+          type: string
+        icon:
+          type: string
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilterExpressionField'
+
+    FilterExpressionField:
+      type: object
+      required: [label1, value1, data1, operations, boolOperator, type, possibleValues]
+      properties:
+        label:
+          type: string
+          description: The display name of the whole field. Tipically the label of the property we are filtering
+        id:
+          type: string
+          description: |
+            This identifier is unique inside the model let it be a builder model or a normal model object.
+        label1:
+          type: string
+        label2:
+          type: string
+        label3:
+          type: string
+        placeholder1:
+          type: string
+        placeholder2:
+          type: string
+        placeholder3:
+          type: string
+        icon:
+          type: string
+        expressionData:
+          $ref: '#/components/schemas/FilterExpressionData'
+        possibleOperations:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilterExpressionOperation'
+        filterFieldType:
+          $ref: '#/components/schemas/FilterExpressionDataType'
+        possibleValues:
+          type: array
+          items:
+            type: Value
+        widgetType:
+          $ref: '#/components/schemas/FilterExpressionFieldWidgetType'
+        subFieldList:
+          $ref: '#/components/schemas/FilterExpressionFieldList'
+        toolbarId:
+          description: |
+            Identifier of the toolbar associated with this widget.
+          type: string
+
+    FilterExpressionBuilder:
+      type: object
+      properties:
+        uri:
+          type: string
+          format: uri
+        data:
+          $ref: '#/components/schemas/FilterExpressionBuilderModel'
+
+    FilterExpressionBuilderModel:
+      type: object
+      description: |
+        The filter field model data contains a list of groups that form a tree structure for the available filter fields. It contains
+        the groups of available fields and the workplace root list that conatins the already added filters. On the builder side 
+        we refer the unique identifiers of the field lists and fields.
+      properties:
+        label:
+          type: string
+        groups:
+          type: array
+          description: This is the group of filter expressions that can be involved to the workplace. This is a tree structure.
+          items:
+            $ref: '#/components/schemas/FilterExpressionBuilderGroup'
+        exceptionalGroup:
+          $ref: '#/components/schemas/FilterExpressionBuilderGroup'
+        workplaceList:
+          description: These are currently included filter fields.
+          $ref: '#/components/schemas/FilterExpressionFieldList'
+        defaultFilters:
+          description: These are the filters that can not be edited or modified by the user.
+          $ref: '#/components/schemas/FilterExpressionList'
+
+    FilterExpressionBuilderGroup:
+      type: object
+      description: |
+        The group is just a UI structure to define a tree structure for the available filter fields. In a group there
+        is an ordered list of filter fields. The group can imply a parenthesis in the xpression or an exist node. Theoreticaly
+        the groups are hierarchical but the pratcticaly it is not. The kind of the group defines what operation is available
+        for the filter fields in the group. 
+        DISPLAY: means thet we can choose an available filter field from the group and place it into the field
+        list related with the current group or in any sub list except under an exist.
+        BRACKET: The given groups defines a bracket. If we choose any of the fiels to add to a filter list then this imlicitely
+        create a bracket node. It can not be added under an exist node.
+        EXIST: The same as the BRACKET but with an exist node.
+      properties:
+        label:
+          type: string
+          description: The visual display name fo the group.
+        builderGroupKind:
+          description: |
+            Defines if the given groups is just a visual sugar to group somehow the available filter fields or it is definetely
+            a bracket or exists.
+          enum: [DIPLAY, BRACKET, EXIST]
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilterExpressionBuilderField'
+        rootListId:
+          type: string
+          description: The unique identifier of the root list in the workplace.
+        subGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilterExpressionBuilderGroup'
+
+    FilterExpressionBuilderField:
+      type: object
+      description: |
+        The available filter fields contains the pre setup filter field as a template. It can be easily copied and added to
+        the filter field list.
+      properties:
+        label:
+          type: string
+        fieldTemplate:
+          $ref: '#/components/schemas/FilterExpressionField'
+        limitOfUsage:
+          type: integer
+          format: int32
+          description: |
+            If less or equal zero then there is no limit how many time we can use the given filter. Else it is the limit
+            where the typical value is 1 becase we can use the given filter field only once.
+        instanceIds:
+          type: array
+          description: The unique identifiers of fields initiated from this builder field in the workplace.
+          items:
+            type: string
+
+    FilterExpressionOrderBy:
+      type: object
+      description: |
+        The order by object..
+      properties:
+        propertyName:
+          type: string
+          description: The property name of the order by column.
+        order:
+          enum: [ASC, DESC]
+
+    FilterExpressionBoolOperator:
+      type: string
+      enum:
+        - AND
+        - OR
+
+    FilterExpressionOperation:
+      type: string
+      enum:
+        - EXPRESSION
+        - EQUAL
+        - NOT_EQUAL
+        - LESS
+        - LESS_OR_EQUAL
+        - GREATER
+        - GREATER_OR_EQUAL
+        - LIKE
+        - NOT_LIKE
+        - BETWEEN
+        - NOT_BETWEEN
+        - IS_EMPTY
+        - IS_NOT_EMPTY
+        - EXISTS
+        - NOT_EXISTS
+        - IN
+        - NOT_IN
+
+    FilterExpressionDataType:
+      type: string
+      enum:
+        - STRING
+        - NUMBER
+        - DATE
+        - DATE_TIME
+        - BOOLEAN
+
+    FilterExpressionFieldWidgetType:
+      type: string
+      enum:
+        - TEXT_FIELD
+        - TEXT_FIELD_CHIPS
+        - TEXT_FIELD_NUMBER
+        - TEXT_FIELD_LOOKUP
+        - TEXT_BOX
+        - SELECT
+        - SELECT_MULTIPLE
+        - DATE
+        - TIME
+        - DATE_TIME
+        - CHECK_BOX
+        - RADIO_BUTTON
+        - RANGE
+
+    SearchPageConfig:
+      type: object
+      description: |
+        This object has every configuration data that is necessary to open a SearchIndexResult page. It contains the possible filter
+        expressions in a FilterExpresisonBuilderModel and also the parameterization of the result grid in a GridViewDescriptor object.
+      required: [gridViewOptions, rowActions, fieldsToQuery]
+      properties:
+        uri:
+          type: string
+          format: uri
+        pageTitle:
+          description: |
+            The page title that can be set induvidually. If it is empty then the FilterExpressionBuilderModel
+            label property will be the page title and we skip set the label of the component itself. So we can skip this
+            value.
+          type: string
+        filterModel:
+          description: |
+            This object describes the possible filter fields and also the included filters fields. It can be used in the FilterExpressionApi
+            to transform a FilterExpressionList for the search execution.
+          $ref: '#/components/schemas/FilterExpressionBuilderModel'
+        filterConfig:
+          description: |
+          $ref: '#/components/schemas/FilterExpressionBuilderApiConfig'
+        searchIndexSchema:
+          description: The schema name of the search index.
+          type: string
+        searchIndexName:
+          description: The name of the search index.
+          type: string
+        container:
+          description: The conteiner to run the query against.
+          type: StoredCollectionDescriptor
+        historyObjectUri:
+          description: If we set this property then the given search page is iterating through the version of this object.
+          type: string
+          format: uri
+        historyLowerBound:
+          description: If we set this property then the page is loading the given version as the oldest one.
+          type: integer
+          format: int64
+        historyUpperBound:
+          description: If we set this property then the page is loading the given version as the newest one.
+          type: integer
+          format: int64
+        historyLoadAllLimit:
+          description: |
+            The nummber is history elements are well-known. The last version number show how many version
+            we have. Under this limit we load all the versions and like a normal list of object.
+          type: integer
+          format: int32
+        historyPageSize:
+          description: |
+            If we set this property and skip any or all of the lower or upper bound then we load this this
+            number of versions after the lower bound or before the upper bound or before the latest version.
+            It will be the initial size of the pageing while iteration through the history entries.
+          type: integer
+          format: int32
+        pageSize:
+          description: |
+            If we set this property then the result grid will have this page size.
+          type: integer
+          format: int32
+        skipInitialQuery:
+          description: Execute query right after the page is opened or not.
+          type: boolean
+        noResultText:
+          description: If there is no result for the search, then show this text instead of the empty table.
+          type: string
+        gridViewOptions:
+          description: |
+            The appearence of the result grid can be parameterized with this object. If we pass no option then the default grid will appear.
+            If we pass more than one then the user can select with an option selector.
+          type: array
+          items:
+            type: GridView
+        defaultRowActions:
+          type: array
+          items:
+            type: string
+        fieldsToQuery:
+          type: array
+          items:
+            type: string
+    SmartFilterType:
+      type: string
+      enum: [SIMPLE, ADVANCED]
+
+    FilterExpressionBuilderUiModel:
+      type: object
+      properties:
+        model:
+          type: FilterExpressionBuilderModel
+        selectedField:
+          $ref: '#/components/schemas/FilterExpressionField'
+        selectedFieldEditor:
+          $ref: '#/components/schemas/FilterExpressionFieldEditor'
+        selectUiAction:
+          type: UiAction
+        deselectUiAction:
+          type: UiAction
+        possibleActions:
+          type: array
+          items:
+            type: UiAction
+        showGroups:
+          type: boolean
+          default: false
+        readOnly:
+          type: boolean
+          default: false
+        extarnalDatabase:
+          type: boolean
+          default: false
+        filterGroupsAction:
+          type: UiAction
+        groupFilter:
+          type: FilterExpressionFieldList
+        groupFilterAction:
+          type: UiAction
+        viewUuid:
+          type: string
+          format: uuid
+        config:
+          $ref: '#/components/schemas/FilterExpressionBuilderApiConfig'
+        type:
+          type: string
+          enum:
+            - SIMPLE
+            - COMPLEX
+
+    FilterExpressionFieldEditor:
+      type: object
+      properties:
+        layoutDef:
+          type: SmartLayoutDefinition
+        possibleActions:
+          type: array
+          items:
+            type: UiAction
+    FilterExpressionBuilderApiConfig:
+      type: object
+      required: [availableActions]
+      properties:
+        readOnly:
+          type: boolean
+          default: false
+        extarnalDatabase:
+          type: boolean
+          default: false
+        availableActions:
+          type: array
+          items:
+            type: string
+
+    SearchConfigHierarchy:
+      type: object
+      description: |
+        This object has every configuration data that is necessary to open a SearchIndexResult page. It contains the possible filter
+        expressions in a FilterExpresisonBuilderModel and also the parameterization of the result grid in a GridViewDescriptor object.
+      required: [filters]
+      properties:
+        uri:
+          type: string
+          format: uri
+        code:
+          type: string
+        searchConfig:
+          $ref: '#/components/schemas/SearchPageConfig'
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchConfigHierarchyFilter'
+        actionDescriptor:
+          type: UiActionDescriptor
+    SearchConfigHierarchyFilter:
+      type: object
+      description: |
+        Additional filter expression.
+      required: [filters]
+      properties:
+        code:
+          type: string
+        filterExpression:
+          $ref: '#/components/schemas/FilterExpressionList'
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchConfigHierarchyFilter'
+        actionDescriptor:
+          type: UiActionDescriptor
